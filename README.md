@@ -1,57 +1,86 @@
-# Bike Sharing Demand Prediction
+# レンタサイクル需要予測
 
-This project is a small machine learning baseline for predicting daily bike
-sharing demand. It uses 2011 daily rental data for training and predicts 2012
-daily rental counts.
+日別のレンタサイクル利用データを用いて、翌年の利用数を予測する機械学習プロジェクトです。2011年の学習データから需要傾向を学習し、2012年の日別需要を予測します。
 
-## Project Files
+精度を最大化するだけでなく、データ確認、前処理、検証、予測CSV出力までの一連の流れを再現できるように整理しました。
 
-- `bike_sharing_local.py`: local Python script for loading data, training the model, evaluating validation performance, and exporting predictions.
-- `day_train.csv`: 2011 training data with daily rental count.
-- `day_test.csv`: 2012 test data used for prediction.
-- `23610252kn_pred.csv`: saved prediction output for submission/reference.
-- `requirements.txt`: Python package requirements.
+## 開発背景・完成までの流れ
 
-Resume PDFs and temporary base64 files are intentionally excluded from this
-repository because this repo is intended to be public portfolio material.
+- 需要予測の基本的な流れを理解するため、日別レンタサイクルデータを題材にしました。
+- まず欠損値、データ型、基本統計量を確認し、日付順に並べて時系列として扱えるようにしました。
+- 2011年データの後半20%を検証用に分け、学習データと検証データを時系列順に分割しました。
+- ベースラインとして線形回帰を採用し、体感温度 `atemp` を特徴量にして需要数を予測しました。
+- 検証指標としてRMSEとMAEを出力し、最後に2012年データの予測結果をCSVとして保存します。
 
-## Method
+## 主なファイル
 
-- Model: `LinearRegression` from scikit-learn.
-- Feature used: `atemp`, the normalized feeling temperature.
-- Validation: the final 20% of the 2011 training data is used as a simple
-  chronological validation split.
-- Output: a CSV with `instant` and predicted `count`.
+- `bike_sharing_local.py`: データ読み込み、前処理、学習、検証、予測CSV出力を行うPythonスクリプト
+- `day_train.csv`: 2011年の学習データ
+- `day_test.csv`: 2012年の予測対象データ
+- `23610252kn_pred.csv`: 提出・参照用の予測結果
+- `requirements.txt`: 必要なPythonライブラリ
 
-This is a baseline model, so the goal is clarity and reproducibility rather
-than maximum score.
+履歴書PDFや一時的なbase64ファイルは、公開用ポートフォリオに不要なため含めていません。
 
-## How to Run
+## 使用技術
 
-Install dependencies:
+- Python
+- pandas: CSV読み込み、データ整形、欠損値確認
+- NumPy: 数値計算
+- scikit-learn: 線形回帰モデル、RMSE/MAE評価
+- Matplotlib / seaborn: 可視化
+- Git / GitHub: バージョン管理・成果物提出
+
+## アピールできるスキル
+
+- CSVデータの読み込みと前処理
+- 時系列を意識したtrain/validation分割
+- scikit-learnによる機械学習モデル構築
+- RMSE/MAEによるモデル評価
+- 予測結果を提出形式CSVに変換する処理
+- READMEと再現手順を含めたポートフォリオ整理
+
+## ビジネス的な価値
+
+- 自転車レンタル需要を予測することで、車両配置やスタッフ配置の計画に活用できます。
+- 天候や気温などの外部要因が需要に与える影響を分析するきっかけになります。
+- 需要が高い日を事前に把握することで、在庫不足や機会損失を減らせます。
+- 小さなベースラインモデルから改善を重ねる実務的な分析プロセスを示しています。
+
+## 手法
+
+- モデル: scikit-learnの `LinearRegression`
+- 特徴量: 正規化された体感温度 `atemp`
+- 検証方法: 2011年データの後半20%を時系列順に検証データとして使用
+- 出力: `instant` と予測 `count` を含むCSV
+
+このリポジトリは、モデルの複雑さよりも、分析手順の明確さと再現性を重視しています。
+
+## 実行方法
+
+依存ライブラリをインストールします。
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Run the script:
+スクリプトを実行します。
 
 ```bash
 python bike_sharing_local.py
 ```
 
-For a quick run without saving charts:
+グラフ保存を省略して素早く確認する場合:
 
 ```bash
 python bike_sharing_local.py --skip-plots
 ```
 
-The script writes prediction files to `submissions/` and charts to `figures/`.
-Those generated folders are ignored by Git.
+予測結果は `submissions/`、グラフは `figures/` に出力されます。これらの生成フォルダはGit管理対象外です。
 
-## Example Output
+## 出力例
 
-The included prediction file starts like this:
+同梱している予測ファイルの先頭例:
 
 ```csv
 dteday,cnt
@@ -60,7 +89,7 @@ dteday,cnt
 2012/1/3,3596.46
 ```
 
-When running `bike_sharing_local.py`, the generated submission format is:
+`bike_sharing_local.py` を実行した場合の提出用フォーマット:
 
 ```csv
 instant,count

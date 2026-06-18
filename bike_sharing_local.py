@@ -1,7 +1,6 @@
-"""Bike sharing demand baseline model.
+"""レンタサイクル需要予測のベースラインモデル。
 
-This script trains a simple Linear Regression model on the 2011 daily bike
-sharing data and predicts daily demand for 2012.
+2011年の日別データで線形回帰モデルを学習し、2012年の日別需要を予測します。
 """
 
 from __future__ import annotations
@@ -26,7 +25,7 @@ VALID_RATIO = 0.2
 
 
 def load_data(data_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Load train/test CSV files and add readable helper columns."""
+    """学習・予測用CSVを読み込み、確認しやすい補助列を追加します。"""
     train_df = pd.read_csv(data_dir / "day_train.csv").rename(columns={"cnt": "count"})
     test_df = pd.read_csv(data_dir / "day_test.csv")
 
@@ -50,11 +49,11 @@ def load_data(data_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def save_exploratory_plots(train_df: pd.DataFrame, output_dir: Path) -> None:
-    """Save basic exploratory charts for portfolio review."""
+    """ポートフォリオ確認用の基本的な可視化グラフを保存します。"""
     output_dir.mkdir(parents=True, exist_ok=True)
 
     plt.figure(figsize=(12, 4))
-    plt.title("Daily bike rentals in 2011")
+    plt.title("2011年の日別レンタサイクル利用数")
     plt.plot(train_df["dteday"], train_df["count"])
     plt.xticks(rotation=45)
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=1))
@@ -65,7 +64,7 @@ def save_exploratory_plots(train_df: pd.DataFrame, output_dir: Path) -> None:
     try:
         import seaborn as sns
     except ImportError:
-        print("seaborn is not installed; skipped pairplot and categorical charts.")
+        print("seabornが未インストールのため、pairplotとカテゴリ別グラフをスキップしました。")
         return
 
     drop_cols = [
@@ -84,13 +83,13 @@ def save_exploratory_plots(train_df: pd.DataFrame, output_dir: Path) -> None:
     ]
     pairplot_df = train_df.drop([c for c in drop_cols if c in train_df.columns], axis=1)
     pair_grid = sns.pairplot(pairplot_df, height=2)
-    pair_grid.fig.suptitle("Numerical feature relationships", y=1.02)
+    pair_grid.fig.suptitle("数値特徴量の関係", y=1.02)
     pair_grid.fig.tight_layout()
     pair_grid.fig.savefig(output_dir / "feature_pairplot.png", dpi=160)
     plt.close(pair_grid.fig)
 
     fig, axes = plt.subplots(2, 3, figsize=(14, 8))
-    fig.suptitle("Categorical variables and rental count")
+    fig.suptitle("カテゴリ変数と利用数の関係")
     sns.barplot(data=train_df, x="season", y="count", ax=axes[0, 0])
     sns.barplot(data=train_df, x="holiday", y="count", ax=axes[0, 1])
     sns.barplot(data=train_df, x="weekday", y="count", ax=axes[0, 2])
@@ -103,7 +102,7 @@ def save_exploratory_plots(train_df: pd.DataFrame, output_dir: Path) -> None:
 
 
 def train_validate(train_df: pd.DataFrame) -> tuple[LinearRegression, float, float, pd.DataFrame]:
-    """Train on the first part of 2011 data and validate on the final period."""
+    """2011年データの前半で学習し、後半期間で検証します。"""
     split_idx = int(len(train_df) * (1 - VALID_RATIO))
     train_part = train_df.iloc[:split_idx].copy()
     valid_part = train_df.iloc[split_idx:].copy()
@@ -121,7 +120,7 @@ def train_validate(train_df: pd.DataFrame) -> tuple[LinearRegression, float, flo
 
 
 def predict_test(train_df: pd.DataFrame, test_df: pd.DataFrame, round_to_int: bool) -> pd.DataFrame:
-    """Train on all 2011 data and predict 2012 count values."""
+    """2011年データ全体で再学習し、2012年の利用数を予測します。"""
     model = LinearRegression()
     model.fit(train_df[FEATURE_COLUMNS].values, train_df["count"].values)
 
@@ -139,12 +138,12 @@ def save_prediction_plot(
     prediction_df: pd.DataFrame,
     output_dir: Path,
 ) -> None:
-    """Save a chart comparing 2011 actuals and 2012 predictions."""
+    """2011年の実績値と2012年の予測値を比較するグラフを保存します。"""
     output_dir.mkdir(parents=True, exist_ok=True)
     plt.figure(figsize=(12, 4))
-    plt.title("2011 actual rentals and 2012 predicted rentals")
-    plt.plot(train_df["dteday"], train_df["count"], label="2011 actual")
-    plt.plot(test_df["dteday"], prediction_df["count"], label="2012 predicted")
+    plt.title("2011年実績値と2012年予測値")
+    plt.plot(train_df["dteday"], train_df["count"], label="2011年実績")
+    plt.plot(test_df["dteday"], prediction_df["count"], label="2012年予測")
     plt.xticks(rotation=45)
     plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=1))
     plt.legend()
@@ -154,13 +153,13 @@ def save_prediction_plot(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train a bike sharing baseline model.")
+    parser = argparse.ArgumentParser(description="レンタサイクル需要予測のベースラインモデルを学習します。")
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR)
     parser.add_argument("--output-dir", type=Path, default=PROJECT_DIR / "submissions")
     parser.add_argument("--plot-dir", type=Path, default=PROJECT_DIR / "figures")
     parser.add_argument("--student-id", default="23610252kn")
-    parser.add_argument("--no-round", action="store_true", help="Keep prediction values as floats.")
-    parser.add_argument("--skip-plots", action="store_true", help="Skip saving exploratory charts.")
+    parser.add_argument("--no-round", action="store_true", help="予測値を小数のまま保存します。")
+    parser.add_argument("--skip-plots", action="store_true", help="探索的グラフの保存をスキップします。")
     return parser.parse_args()
 
 
@@ -169,19 +168,19 @@ def main() -> None:
     matplotlib.use("Agg")
 
     train_df, test_df = load_data(args.data_dir)
-    print("Loaded data")
-    print(f"  Train shape: {train_df.shape}")
-    print(f"  Test shape : {test_df.shape}")
+    print("データを読み込みました")
+    print(f"  学習データ形状: {train_df.shape}")
+    print(f"  予測データ形状: {test_df.shape}")
     print()
-    print("Training columns")
+    print("学習に使用する特徴量")
     print(FEATURE_COLUMNS)
     print()
-    print("Missing values in train data")
+    print("学習データの欠損値")
     print(train_df.isnull().sum())
 
     _, rmse, mae, validation_df = train_validate(train_df)
     print()
-    print("Validation metrics")
+    print("検証指標")
     print(f"  RMSE: {rmse:.3f}")
     print(f"  MAE : {mae:.3f}")
 
@@ -197,12 +196,12 @@ def main() -> None:
         save_prediction_plot(train_df, test_df, prediction_df, args.plot_dir)
 
     print()
-    print(f"Saved predictions to: {output_path}")
+    print(f"予測結果を保存しました: {output_path}")
     print()
-    print("Prediction preview")
+    print("予測結果プレビュー")
     print(prediction_df.head(10))
     print()
-    print("Validation preview")
+    print("検証結果プレビュー")
     print(validation_df.head(5))
 
 
