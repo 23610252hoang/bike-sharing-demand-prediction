@@ -11,6 +11,7 @@ from pathlib import Path
 
 import matplotlib
 import matplotlib.dates as mdates
+import matplotlib.font_manager as font_manager
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -22,6 +23,23 @@ PROJECT_DIR = Path(__file__).resolve().parent
 DEFAULT_DATA_DIR = PROJECT_DIR
 FEATURE_COLUMNS = ["atemp"]
 VALID_RATIO = 0.2
+
+
+def configure_japanese_font() -> None:
+    """実行環境で利用可能な日本語フォントをMatplotlibへ設定します。"""
+    preferred_fonts = [
+        "Yu Gothic",
+        "Meiryo",
+        "Noto Sans CJK JP",
+        "IPAexGothic",
+    ]
+    installed_fonts = {font.name for font in font_manager.fontManager.ttflist}
+    for font_name in preferred_fonts:
+        if font_name in installed_fonts:
+            plt.rcParams["font.family"] = font_name
+            return
+
+    print("日本語フォントが見つからないため、グラフ内の日本語が正しく表示されない場合があります。")
 
 
 def load_data(data_dir: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -166,6 +184,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     matplotlib.use("Agg")
+    configure_japanese_font()
 
     train_df, test_df = load_data(args.data_dir)
     print("データを読み込みました")
