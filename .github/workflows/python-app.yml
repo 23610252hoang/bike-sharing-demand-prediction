@@ -1,0 +1,21 @@
+name: Bike prediction CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Compile source
+        run: python -m compileall bike_sharing_local.py
+      - name: Run prediction pipeline
+        run: python bike_sharing_local.py --skip-plots --output-dir ci-output
