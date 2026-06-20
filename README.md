@@ -1,5 +1,8 @@
 # レンタサイクル需要予測
 
+[![Bike prediction CI](https://github.com/23610252hoang/bike-sharing-demand-prediction/actions/workflows/python-app.yml/badge.svg)](https://github.com/23610252hoang/bike-sharing-demand-prediction/actions/workflows/python-app.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 日別のレンタサイクル利用データを用いて、翌年の利用数を予測する機械学習プロジェクトです。2011年の学習データから需要傾向を学習し、2012年の日別需要を予測します。
 
 精度を最大化するだけでなく、データ確認、前処理、検証、予測CSV出力までの一連の流れを再現できるように整理しました。
@@ -145,3 +148,8 @@ python bike_sharing_local.py --skip-plots
 - なぜ最初に線形回帰を選んだか
 - RMSEとMAEがそれぞれ何を表すか
 - 現在のモデルの限界と、季節・曜日・天候を追加する改善案
+
+
+## ライセンス
+
+本リポジトリで作成したソースコードとドキュメントは [MIT License](LICENSE) です。第三者データはMIT Licenseの対象外で、それぞれの利用条件に従います。
